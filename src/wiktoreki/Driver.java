@@ -11,23 +11,65 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import static wiktoreki.Die.MAX_SIDES;
+import static wiktoreki.Die.MIN_SIDES;
+
 public class Driver {
 
     public final int MIN_DICE = 2;
     public final int MAX_DICE = 10;
 
-    private static int[] getInput(){
-        System.out.println("Please enter the number of dice to roll, how many sides the dice have, and how many rolls to complete, separating the values with a space.");
-        System.out.println("Example: \"2 6 1000\"");
-        System.out.println();
-        System.out.println("Enter configuration:");
+    private static void getInput(){
+        boolean con1 = true;
+        boolean validInput = false;
 
-        Scanner sc = new Scanner(System.in);
-        String userInput = sc.nextLine();
+        while(!validInput) {
+            System.out.println("Please enter the number of dice to roll, how many sides the dice have, and how many rolls to complete, separating the values with a space.");
+            System.out.println("Example: \"2 6 1000\"");
+            System.out.println();
+            System.out.println("Enter configuration:");
 
-        return null;
+            Scanner sc = new Scanner(System.in);
+            String userInput = sc.nextLine();
 
+            if (userInput.length() - userInput.replaceAll(" ", "").length() < 2) {
+                System.out.println("Invalid input: Expected 3 variables but only received " + userInput.replaceAll(" ", "").length());
+                con1 = false;
+            }
+            else{
+                con1 = true;
+            }
 
+            int firstIndex = 0;
+            int secondIndex = 0;
+            String updatedInput = "";
+            int numberOne = 0;
+            int numberTwo = 0;
+            int numberThree = 0;
+
+            while(userInput.contains(" ")){
+                firstIndex = userInput.indexOf(" ");
+                secondIndex = userInput.indexOf(" ", firstIndex+1);
+                updatedInput = userInput.substring(0,firstIndex) + userInput.substring(firstIndex+1, secondIndex) + userInput.substring(secondIndex+1) + userInput.substring(secondIndex+2);
+                userInput = updatedInput;
+                try{
+                    numberOne = Integer.parseInt(updatedInput.substring(0, firstIndex));
+                    numberTwo = Integer.parseInt(updatedInput.substring(firstIndex, secondIndex-1));
+                    numberThree = Integer.parseInt(updatedInput.substring(secondIndex-3));
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input: All values must be whole numbers.");
+                    con1 = false;
+                }
+                System.out.println(numberOne);
+                System.out.println(numberTwo);
+                System.out.println(numberThree);
+            }
+
+            if(con1){
+                report(numberOne, numberTwo, rollDice(createDice(numberOne, numberTwo), numberTwo, numberThree, numberOne), numberThree);
+                validInput = true;
+            }
+        }
 
     }
 
@@ -49,13 +91,22 @@ public class Driver {
 
     }
 
-    private static int[] rollDice(Die[] dice, int numSides, int numRolls){
+    private static int[] rollDice(List<Die> dice, int numSides, int numRolls, int numDice){
         int currentDiceNumber = 0;
         int currentNumRolls = 0;
-        int[] rolls = new int[numRolls*numSides];
+        int total = 0;
+        int[] rolls = new int[numDice*numSides-1];
         while(currentNumRolls < numRolls){
-            dice[currentDiceNumber].roll();
-            rolls[(dice[currentDiceNumber].getCurrentValue() - numRolls)]++;
+            currentDiceNumber = 0;
+            while(currentDiceNumber < numDice) {
+                dice.get(currentDiceNumber).roll();
+                total += dice.get(currentDiceNumber).getCurrentValue();
+                currentDiceNumber++;
+            }
+
+            rolls[total - numDice]++;
+            total = 0;
+
             currentNumRolls++;
         }
 
@@ -76,20 +127,29 @@ public class Driver {
 
     }
 
-    private static void report(int numDice, int[] rolls, int max, int numRolls){
+    private static void report(int numDice, int numberTwo, int[] rolls, int numRolls){
+        int max = findMax(rolls);
         int scale = max/10;
         int numStars = 0;
         if(scale > 0){
-            numStars = numRolls / scale;
+            numStars = (numRolls / scale) / 10;
+            System.out.println(numStars);
         }
         else{
             scale = 1;
             numStars = numRolls / scale;
         }
 
-        for(int i=0; i<rolls.length; i++){
+        for (int a = 0; a < numberTwo*numDice-1; a++) {
 
-            System.out.printf(0+numRolls + " :" + rolls[i] + "     " +);
+            String temp = "";
+            String finalStars = "";
+            for (int s = 1; s <= numStars; s++) {
+                finalStars = temp + "*";
+            }
+
+
+            System.out.println(numDice+a + " :" + rolls[a] + "     " + finalStars);
 
         }
 
@@ -98,6 +158,8 @@ public class Driver {
 
 
     public static void main(String[] args) {
+
+        getInput();
 
 
     }

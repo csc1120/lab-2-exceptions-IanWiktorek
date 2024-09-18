@@ -13,8 +13,8 @@ import java.util.Random;
 public class Die extends Driver{
 
 
-    public final int MIN_SIDES = 2;
-    public final int MAX_SIDES = 100;
+    public static final int MIN_SIDES = 2;
+    public static final int MAX_SIDES = 100;
 
     private int currentSides;
     private int currentValue;
@@ -23,20 +23,25 @@ public class Die extends Driver{
 
     Die(int numSides) throws IllegalArgumentException {
 
-        if(numSides >= MIN_SIDES && numSides <= MAX_SIDES) {
-            this.numSides = numSides;
-            currentSides = numSides;
-        }
+        this.currentValue = 0;
+        int currentDiceValue;
 
-        else
-            throw new IllegalArgumentException("Please enter a number between 2 and 100");
+        if(numSides >= MIN_SIDES && numSides <= MAX_SIDES) {
+            try {
+                this.numSides = numSides;
+                currentSides = numSides;
+            }
+            catch(IllegalArgumentException e) {
+                throw new IllegalArgumentException("numSides must be between " + MIN_SIDES + " and " + MAX_SIDES);
+            }
+        }
     }
 
     //Returns the current value of the die and then sets the current value back to 0.
     public int getCurrentValue() throws DieNotRolledException{
         int returnedCurrentValue = 0;
 
-        if(currentValue >= MIN_SIDES && currentValue <= currentSides)
+        if(currentValue >= 1 && currentValue <= currentSides)
         {
             returnedCurrentValue = currentValue;
             currentValue = 0;
@@ -51,7 +56,7 @@ public class Die extends Driver{
 
     public void roll(){
         //Rolls the die and puts the rolled value into the current value variable.
-        currentValue = random.nextInt(numSides) + MIN_SIDES;
+        this.currentValue = random.nextInt(MIN_SIDES-1, numSides+1);
     }
 
 
