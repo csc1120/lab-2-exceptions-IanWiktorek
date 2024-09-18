@@ -50,19 +50,16 @@ public class Driver {
             while(userInput.contains(" ")){
                 firstIndex = userInput.indexOf(" ");
                 secondIndex = userInput.indexOf(" ", firstIndex+1);
-                updatedInput = userInput.substring(0,firstIndex) + userInput.substring(firstIndex+1, secondIndex) + userInput.substring(secondIndex+1) + userInput.substring(secondIndex+2);
+                updatedInput = userInput.substring(0,firstIndex) + userInput.substring(firstIndex+1, secondIndex) + userInput.substring(secondIndex+1);
                 userInput = updatedInput;
                 try{
                     numberOne = Integer.parseInt(updatedInput.substring(0, firstIndex));
                     numberTwo = Integer.parseInt(updatedInput.substring(firstIndex, secondIndex-1));
-                    numberThree = Integer.parseInt(updatedInput.substring(secondIndex-3));
+                    numberThree = Integer.parseInt(updatedInput.substring(secondIndex-1));
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid input: All values must be whole numbers.");
                     con1 = false;
                 }
-                System.out.println(numberOne);
-                System.out.println(numberTwo);
-                System.out.println(numberThree);
             }
 
             if(con1){
@@ -130,23 +127,25 @@ public class Driver {
     private static void report(int numDice, int numberTwo, int[] rolls, int numRolls){
         int max = findMax(rolls);
         int scale = max/10;
-        int numStars = 0;
-        if(scale > 0){
-            numStars = (numRolls / scale) / 10;
-            System.out.println(numStars);
-        }
-        else{
-            scale = 1;
-            numStars = numRolls / scale;
-        }
 
-        for (int a = 0; a < numberTwo*numDice-1; a++) {
+        for (int a = 0; a < numberTwo*numDice-(numDice-1); a++) {
 
+
+            int numStars = 0;
+            String star = "*";
             String temp = "";
             String finalStars = "";
-            for (int s = 1; s <= numStars; s++) {
-                finalStars = temp + "*";
+            if(scale > 0){
+                numStars = (rolls[a] / scale);
             }
+            else{
+                scale = 1;
+                numStars = numRolls / scale;
+            }
+            for (int s = 1; s <= numStars; s++) {
+                temp = temp + star;
+            }
+            finalStars = temp;
 
 
             System.out.println(numDice+a + " :" + rolls[a] + "     " + finalStars);
