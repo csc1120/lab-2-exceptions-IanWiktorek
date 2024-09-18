@@ -10,7 +10,7 @@ package wiktoreki;
 
 import java.util.Random;
 
-public class Die {
+public class Die extends Driver{
 
 
     public final int MIN_SIDES = 2;
