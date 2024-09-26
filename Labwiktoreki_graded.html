@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Lab 2 Feedback - wiktoreki-graded</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        h1, h2, h3 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        table, th, td { border: 1px solid #ccc; }
+        th, td { padding: 10px; text-align: left; }
+        .commendation { color: green; }
+        .deduction { color: red; }
+        .suggestion { color: blue; }
+        .code-block { background-color: #f9f9f9; border-left: 3px solid #ccc; padding: 10px; margin: 10px 0; }
+        pre { margin: 0; }
+        .grade { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Lab 2 - Exceptions</h1>
+    <table>
+        <tr>
+            <th>Earned</th>
+            <th>Possible</th>
+            <th>Criteria</th>
+        </tr>
+        <tr>
+            <td>15</td>
+            <td>15</td>
+            <td>Intermediate Commits</td>
+        </tr>
+        <tr>
+            <td>54</td>
+            <td>60</td>
+            <td>Technical Quality (see point deductions in code)</td>
+        </tr>
+        <tr>
+            <td>15</td>
+            <td>15</td>
+            <td>Coding Standard Compliance and Program Clarity</td>
+        </tr>
+        <tr>
+            <td>10</td>
+            <td>10</td>
+            <td>Following Submission Instructions</td>
+        </tr>
+    </table>
+
+    <h2>Feedback</h2>
+    <p> Wiktoreki,</p>
+    <p>Thank you for your submission of Lab 2. Below, you'll find detailed feedback on your work. You've made a commendable effort in implementing the required functionalities. However, there are several areas where improvements can enhance the robustness and clarity of your code.</p>
+
+    <h2>Detailed Feedback</h2>
+
+    <h3>Die.java</h3>
+    <div class="code-block">
+        <pre>
+    /*
+     * Course: CSC1020
+     * Lab 2 - Exceptions
+     * Die class
+     * Name: wiktor_eki
+     * Last Updated: 9/11/2024
+     */
+    
+    package wiktoreki;
+    
+    import java.util.Random;
+    
+    public class Die extends Driver{
+    
+    
+        public static final int MIN_SIDES = 2;
+        public static final int MAX_SIDES = 100;
+    
+        private int currentSides;
+        private int currentValue;
+        private int numSides;
+        Random random = new Random();
+    
+        Die(int numSides) throws IllegalArgumentException {
+    
+            this.currentValue = 0;
+            int currentDiceValue;
+    
+            if(numSides >= MIN_SIDES && numSides <= MAX_SIDES) {
+                try {
+                    this.numSides = numSides;
+                    currentSides = numSides;
+                }
+                catch(IllegalArgumentException e) {
+                    throw new IllegalArgumentException("numSides must be between " + MIN_SIDES + " and " + MAX_SIDES);
+                }
+            }
+        }
+    
+        //Returns the current value of the die and then sets the current value back to 0.
+        public int getCurrentValue() throws DieNotRolledException{
+            int returnedCurrentValue = 0;
+    
+            if(currentValue >= 1 && currentValue <= currentSides)
+            {
+                returnedCurrentValue = currentValue;
+                currentValue = 0;
+                return returnedCurrentValue;
+            }
+            else
+            {
+                throw new DieNotRolledException();
+            }
+    
+        }
+    
+        public void roll(){
+            //Rolls the die and puts the rolled value into the current value variable.
+            this.currentValue = random.nextInt(MIN_SIDES-1, numSides+1);
+        }
+    
+    
+    }
+        </pre>
+    </div>
+
+    <p><span class="deduction"><strong>Deduction (-1):</strong></span> <strong>Incorrect Inheritance:</strong> The <code>Die</code> class incorrectly extends <code>Driver</code>. This is a fundamental design flaw as a Die should not inherit from a Driver class. Instead, <code>Die</code> should operate independently and be utilized by the Driver.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Constructor Logic:</strong> The constructor includes a try-catch block that attempts to catch an <code>IllegalArgumentException</code> immediately after setting the number of sides. Since no exception is thrown within the try block, this catch is unnecessary and redundant.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Method <code>roll()</code>:</strong> The usage of <code>random.nextInt(MIN_SIDES-1, numSides+1)</code> is incorrect. The <code>nextInt</code> method in Java's <code>Random</code> class with two parameters expects the origin to be inclusive and the bound to be exclusive. Therefore, <code>nextInt(1, numSides + 1)</code> correctly generates values from 1 to <code>numSides</code> inclusive. However, using <code>MIN_SIDES - 1</code> as the origin is unnecessary and can lead to confusion.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Method <code>getCurrentValue()</code>:</strong> The method correctly throws a <code>DieNotRolledException</code> when <code>currentValue</code> is invalid. However, consider resetting <code>currentValue</code> only after successfully retrieving it to avoid potential misuse.</p>
+
+    <p><span class="suggestion"><strong>Suggestion for Improvement:</strong></span> 
+        <ol>
+            <li>Remove the inheritance from <code>Driver</code> in <code>Die.java</code>.</li>
+            <li>Eliminate the unnecessary try-catch block in the constructor.</li>
+            <li>Adjust the <code>roll()</code> method to use <code>random.nextInt(1, numSides + 1)</code> for clarity.</li>
+            <li>Ensure that <code>currentValue</code> is only reset after successfully retrieving its value.</li>
+        </ol>
+    </p>
+
+    <div class="code-block">
+        <pre>
+    public class Die {
+        public static final int MIN_SIDES = 2;
+        public static final int MAX_SIDES = 100;
+    
+        private int currentValue;
+        private int numSides;
+        private Random random = new Random();
+    
+        /**
+         * Constructor for Die object.
+         * @param numSides Number of sides on the die.
+         * @throws IllegalArgumentException if numSides is out of valid range.
+         */
+        public Die(int numSides) throws IllegalArgumentException {
+            if(numSides < MIN_SIDES || numSides > MAX_SIDES) {
+                throw new IllegalArgumentException("numSides must be between " + MIN_SIDES + " and " + MAX_SIDES);
+            }
+            this.numSides = numSides;
+            this.currentValue = 0;
+        }
+    
+        /**
+         * Retrieves the current value of the die and resets it.
+         * @return The value rolled.
+         * @throws DieNotRolledException if the die has not been rolled yet.
+         */
+        public int getCurrentValue() throws DieNotRolledException{
+            if(currentValue == 0) {
+                throw new DieNotRolledException();
+            }
+            int returnedCurrentValue = currentValue;
+            currentValue = 0;
+            return returnedCurrentValue;
+        }
+    
+        /**
+         * Rolls the die and updates the current value.
+         */
+        public void roll(){
+            this.currentValue = random.nextInt(1, numSides + 1);
+        }
+    }
+        </pre>
+    </div>
+
+    <h3>DieNotRolledException.java</h3>
+    <div class="code-block">
+        <pre>
+    /*
+     * Course: CSC1020
+     * Lab 2 - Exceptions
+     * DieNotRolledException class
+     * Name: wiktor_eki
+     * Last Updated: 9/11/2024
+     */
+    package wiktoreki;
+    
+    public class DieNotRolledException extends RuntimeException  {
+    
+        public String getMessage(){
+    
+            return ("The die could not be rolled because the value was out of range");
+    
+        }
+    
+    }
+        </pre>
+    </div>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Method <code>getMessage()</code> in <code>DieNotRolledException.java</code>:</strong> Overriding the <code>getMessage()</code> method without adding any additional functionality is unnecessary. Instead, utilize the constructor to set the exception message.</p>
+
+    <p><span class="suggestion"><strong>Suggestion for Improvement:</strong></span> Remove the overridden <code>getMessage()</code> method and set the exception message in the constructor:</p>
+
+    <div class="code-block">
+        <pre>
+    /**
+     * DieNotRolledException is thrown when attempting to retrieve the value of a die that hasn't been rolled.
+     */
+    public class DieNotRolledException extends RuntimeException  {
+        public DieNotRolledException(){
+            super("The die has not been rolled yet.");
+        }
+    }
+        </pre>
+    </div>
+
+    <h3>Driver.java</h3>
+    <div class="code-block">
+        <pre>
+    /*
+     * Course: CSC1020
+     * Lab 2 - Exceptions
+     * Main Driver class
+     * Name: wiktor_eki
+     * Last Updated: 9/17/2024
+     */
+    package wiktoreki;
+    
+    import java.util.ArrayList;
+    import java.util.List;
+    import java.util.Scanner;
+    
+    import static wiktoreki.Die.MAX_SIDES;
+    import static wiktoreki.Die.MIN_SIDES;
+    
+    public class Driver {
+    
+        public final int MIN_DICE = 2;
+        public final int MAX_DICE = 10;
+    
+        private static void getInput(){
+            boolean con1 = true;
+            boolean validInput = false;
+    
+            while(!validInput) {
+                System.out.println("Please enter the number of dice to roll, how many sides the dice have, and how many rolls to complete, separating the values with a space.");
+                System.out.println("Example: \"2 6 1000\"");
+                System.out.println();
+                System.out.println("Enter configuration:");
+    
+                Scanner sc = new Scanner(System.in);
+                String userInput = sc.nextLine();
+    
+                if (userInput.length() - userInput.replaceAll(" ", "").length() < 2) {
+                    System.out.println("Invalid input: Expected 3 variables but only received " + userInput.replaceAll(" ", "").length());
+                    con1 = false;
+                }
+                else{
+                    con1 = true;
+                }
+    
+                int firstIndex = 0;
+                int secondIndex = 0;
+                String updatedInput = "";
+                int numberOne = 0;
+                int numberTwo = 0;
+                int numberThree = 0;
+    
+                while(userInput.contains(" ")){
+                    firstIndex = userInput.indexOf(" ");
+                    secondIndex = userInput.indexOf(" ", firstIndex+1);
+                    updatedInput = userInput.substring(0,firstIndex) + userInput.substring(firstIndex+1, secondIndex) + userInput.substring(secondIndex+1);
+                    userInput = updatedInput;
+                    try{
+                        numberOne = Integer.parseInt(updatedInput.substring(0, firstIndex));
+                        numberTwo = Integer.parseInt(updatedInput.substring(firstIndex, secondIndex-1));
+                        numberThree = Integer.parseInt(updatedInput.substring(secondIndex-1));
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input: All values must be whole numbers.");
+                        con1 = false;
+                    }
+                }
+    
+                if(con1){
+                    report(numberOne, numberTwo, rollDice(createDice(numberOne, numberTwo), numberTwo, numberThree, numberOne), numberThree);
+                    validInput = true;
+                }
+            }
+    
+        }
+    
+    
+        private static List<Die> createDice(int numDice, int numSides){
+    
+            List<Die> dice = new ArrayList<Die>();
+            int numCreated = 0;
+    
+            while(numCreated < numDice){
+                
+                Die tempDice = new Die(numSides);
+                dice.add(tempDice);
+                numCreated++;
+    
+            }
+    
+            return dice;
+    
+        }
+    
+        private static int[] rollDice(List<Die> dice, int numSides, int numRolls, int numDice){
+            int currentDiceNumber = 0;
+            int currentNumRolls = 0;
+            int total = 0;
+            int[] rolls = new int[numDice*numSides-1];
+            while(currentNumRolls < numRolls){
+                currentDiceNumber = 0;
+                while(currentDiceNumber < numDice) {
+                    dice.get(currentDiceNumber).roll();
+                    total += dice.get(currentDiceNumber).getCurrentValue();
+                    currentDiceNumber++;
+                }
+    
+                rolls[total - numDice]++;
+                total = 0;
+    
+                currentNumRolls++;
+            }
+    
+            return rolls;
+    
+        }
+    
+        private static int findMax(int[] rolls){
+    
+            int max = 0;
+            for(int i=0; i<rolls.length; i++){
+                if(rolls[i] > max){
+                    max = rolls[i];
+                }
+            }
+    
+            return max;
+    
+        }
+    
+        private static void report(int numDice, int numberTwo, int[] rolls, int numRolls){
+            int max = findMax(rolls);
+            int scale = max/10;
+    
+            for (int a = 0; a < numberTwo*numDice-(numDice-1); a++) {
+    
+    
+                int numStars = 0;
+                String star = "*";
+                String temp = "";
+                String finalStars = "";
+                if(scale > 0){
+                    numStars = (rolls[a] / scale);
+                }
+                else{
+                    scale = 1;
+                    numStars = numRolls / scale;
+                }
+                for (int s = 1; s <= numStars; s++) {
+                    temp = temp + star;
+                }
+                finalStars = temp;
+    
+    
+                System.out.println(numDice+a + " :" + rolls[a] + "     " + finalStars);
+    
+            }
+    
+        }
+    
+    
+    
+        public static void main(String[] args) {
+    
+            getInput();
+    
+    
+        }
+    
+    
+    
+    }
+        </pre>
+    </div>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Method <code>getInput()</code> in <code>Driver.java</code>:</strong> The method performs multiple responsibilities including input validation, parsing, dice creation, rolling, and reporting. This violates the Single Responsibility Principle, making the method harder to maintain and debug.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Input Parsing Logic:</strong> The method attempts to parse user input by removing spaces and extracting substrings based on space indices. This approach is error-prone and can lead to incorrect parsing, especially if the input format varies.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Method <code>rollDice()</code> in <code>Driver.java</code>:</strong> The implementation incorrectly initializes the <code>rolls</code> array with a size of <code>numDice*numSides-1</code>, which does not accurately represent the range of possible roll sums. Additionally, the method does not handle potential <code>ArrayIndexOutOfBoundsException</code> if the sum exceeds the array bounds.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Method <code>report()</code> in <code>Driver.java</code>:</strong> The calculation for <code>scale</code> as <code>rolls[max] / 10</code> can result in zero, leading to division by zero errors when calculating <code>numStars</code>. Furthermore, the method's logic for generating star strings is unnecessarily convoluted and can be simplified.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Method <code>findMax()</code> in <code>Driver.java</code>:</strong> The method efficiently finds the maximum value in the <code>rolls</code> array; however, it does not track the index of the maximum value, which may be necessary for certain operations.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Resource Management:</strong> The <code>Scanner</code> instance is created inside the <code>getInput()</code> method without being closed, leading to potential resource leaks.</p>
+
+    <p><span class="deduction"><strong>Deduction (-0.5):</strong></span> <strong>Exception Handling:</strong> The exception handling in the <code>getInput()</code> method catches <code>NumberFormatException</code> but does not handle other potential exceptions such as <code>ArrayIndexOutOfBoundsException</code>, which can occur during input parsing.</p>
+
+    <p><span class="suggestion"><strong>Suggestion for Improvement:</strong></span> 
+        <ol>
+            <li>Separate the responsibilities of the <code>getInput()</code> method by dividing it into distinct methods for input capture, validation, parsing, dice creation, rolling, and reporting.</li>
+            <li>Use more reliable methods for parsing user input, such as splitting the input string by spaces and directly parsing each token.</li>
+            <li>Adjust the size of the <code>rolls</code> array based on the minimum and maximum possible sums to accurately capture all possible roll outcomes.</li>
+            <li>Implement checks to prevent <code>ArrayIndexOutOfBoundsException</code> by ensuring that the sum of dice rolls does not exceed the bounds of the <code>rolls</code> array.</li>
+            <li>Simplify the <code>report()</code> method by using built-in string manipulation methods to generate star strings.</li>
+            <li>Optimize the <code>findMax()</code> method to track both the maximum value and its corresponding index if necessary.</li>
+            <li>Ensure that all <code>Scanner</code> instances are properly closed after use to prevent resource leaks.</li>
+            <li>Enhance exception handling by catching and handling all potential exceptions that may arise during input parsing and processing.</li>
+        </ol>
+    </p>
+
+    <div class="code-block">
+        <pre>
+    /**
+     * Refactored Driver class with improved input handling and method separation.
+     */
+    public class Driver {
+        public static final int MIN_DICE = 2;
+        public static final int MAX_DICE = 10;
+    
+        public static void main(String[] args) {
+            Scanner reader = new Scanner(System.in);
+            try {
+                int[] inputs = getInput(reader);
+                int numDice = inputs[0];
+                int numSides = inputs[1];
+                int numRolls = inputs[2];
+    
+                List<Die> dice = createDice(numDice, numSides);
+                int[] rollResults = rollDice(dice, numSides, numRolls, numDice);
+                int maxCount = findMax(rollResults);
+                report(numDice, numSides, rollResults, maxCount);
+            } catch (Exception e) {
+                System.out.println("An unexpected error occurred: " + e.getMessage());
+            } finally {
+                reader.close();
+            }
+        }
+    
+        private static int[] getInput(Scanner sc) {
+            System.out.println("Please enter the number of dice to roll, how many sides the dice have, and how many rolls to complete, separating the values with a space.");
+            System.out.println("Example: \"2 6 1000\"");
+            System.out.print("Enter Configuration: ");
+    
+            String inputLine = sc.nextLine();
+            String[] nums = inputLine.trim().split("\\s+");
+    
+            if (nums.length != 3) {
+                throw new IllegalArgumentException("Invalid input: Expected 3 values but received " + nums.length + ".");
+            }
+    
+            try {
+                int numDice = Integer.parseInt(nums[0]);
+                int numSides = Integer.parseInt(nums[1]);
+                int numRolls = Integer.parseInt(nums[2]);
+    
+                if (numDice < MIN_DICE || numDice > MAX_DICE) {
+                    throw new IllegalArgumentException("Bad die creation: Illegal number of dice: " + numDice + ". Must be between " + MIN_DICE + " and " + MAX_DICE + ".");
+                }
+    
+                if (numSides < Die.MIN_SIDES || numSides > Die.MAX_SIDES) {
+                    throw new IllegalArgumentException("Bad die creation: Illegal number of sides: " + numSides + ". Must be between " + Die.MIN_SIDES + " and " + Die.MAX_SIDES + ".");
+                }
+    
+                if (numRolls <= 0) {
+                    throw new IllegalArgumentException("Number of rolls must be a positive integer.");
+                }
+    
+                return new int[] {numDice, numSides, numRolls};
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid input: All values must be whole numbers.");
+            }
+        }
+    
+        private static List<Die> createDice(int numDice, int numSides){
+            List<Die> dice = new ArrayList<>();
+            for(int i = 0; i < numDice; i++){
+                dice.add(new Die(numSides));
+            }
+            return dice;
+        }
+    
+        private static int[] rollDice(List<Die> dice, int numSides, int numRolls, int numDice) {
+            int minSum = numDice * 1;
+            int maxSum = numDice * numSides;
+            int[] rollResults = new int[maxSum - minSum + 1];
+    
+            for(int i = 0; i < numRolls; i++) {
+                int sum = 0;
+                for(Die die : dice){
+                    die.roll();
+                    sum += die.getCurrentValue();
+                }
+                if(sum >= minSum && sum <= maxSum){
+                    rollResults[sum - minSum]++;
+                }
+            }
+            return rollResults;
+        }
+    
+        private static int findMax(int[] rolls){
+            int max = 0;
+            for(int roll : rolls){
+                if(roll > max){
+                    max = roll;
+                }
+            }
+            return max;
+        }
+    
+        private static void report(int numDice, int numSides, int[] rolls, int maxCount) {
+            int scale = maxCount / 10;
+            if(scale == 0){
+                scale = 1;
+            }
+    
+            int minSum = numDice * 1;
+    
+            for(int i = 0; i < rolls.length; i++) {
+                int sum = i + minSum;
+                int numStars = rolls[i] / scale;
+                String starString = "*".repeat(Math.max(0, numStars));
+                System.out.printf("%2d : %4d  %s%n", sum, rolls[i], starString);
+            }
+        }
+    }
+        </pre>
+    </div>
+
+    <p><span class="commendation"><strong>Commendation:</strong></span> Good effort in implementing the required functionalities. The use of helper methods like <code>createDice()</code>, <code>rollDice()</code>, and <code>report()</code> demonstrates an understanding of modular programming, which enhances the maintainability of your code.</p>
+
+    <h2>Final Grade</h2>
+    <p class="grade"><strong>Earned:</strong> 94/100</p>
+    <ul>
+        <li>Intermediate Commits: 15/15</li>
+        <li>Technical Quality: 54/60 (Deductions for inheritance, constructor logic, exception handling, method responsibilities, input parsing, resource management, and efficiency issues)</li>
+        <li>Coding Standard Compliance and Program Clarity: 15/15</li>
+        <li>Following Submission Instructions: 10/10</li>
+	<li>I left out -0.5 points; you need to work harder and adopt these corrections and do not repeat them in the coming labs.</li>
+    </ul>
+
+    <p><strong>Overall, you've made a solid effort!</strong> However, please address the highlighted issues to improve the robustness and efficiency of your code. Proper exception handling, adhering to object-oriented principles, and ensuring method responsibilities are crucial for creating maintainable and error-resistant applications.</p>
+
+    <p>If you have any questions about this feedback or need further clarification, please feel free to reach out.</p>
+
+    <p><em>Grader: Dr. Ukegbu</em></p>
+</body>
+</html>
